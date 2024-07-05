@@ -60,7 +60,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             SELECT
                 c.relname,
                 CASE
-                    WHEN c.relispartition THEN 'p'
+                    WHEN c.parttype <> 'n' THEN 'p'
                     WHEN c.relkind IN ('m', 'v') THEN 'v'
                     ELSE 't'
                 END,
