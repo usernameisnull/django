@@ -193,7 +193,10 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
                 c.conname,
                 array(
                     SELECT attname
-                    FROM unnest(c.conkey) WITH ORDINALITY cols(colid, arridx)
+                    FROM (
+                        SELECT unnest(c.conkey) AS colid,
+                               generate_series(1, array_length(c.conkey, 1)) AS arridx
+                    ) AS cols
                     JOIN pg_attribute AS ca ON cols.colid = ca.attnum
                     WHERE ca.attrelid = c.conrelid
                     ORDER BY cols.arridx
@@ -226,16 +229,17 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             """
             SELECT
                 indexname,
-                array_agg(attname ORDER BY arridx),
+                array_agg(attname ORDER BY rnum),
                 indisunique,
                 indisprimary,
-                array_agg(ordering ORDER BY arridx),
+                array_agg(ordering ORDER BY rnum),
                 amname,
                 exprdef,
                 s2.attoptions
             FROM (
                 SELECT
-                    c2.relname as indexname, idx.*, attr.attname, am.amname,
+                    row_number() OVER () as rnum, c2.relname as indexname,
+                    idx.*, attr.attname, am.amname,
                     CASE
                         WHEN idx.indexprs IS NOT NULL THEN
                             pg_get_indexdef(idx.indexrelid)
@@ -248,11 +252,9 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
                     END as ordering,
                     c2.reloptions as attoptions
                 FROM (
-                    SELECT *
-                    FROM
-                        pg_index i,
-                        unnest(i.indkey, i.indoption)
-                            WITH ORDINALITY koi(key, option, arridx)
+                    SELECT
+                        *, unnest(i.indkey) as key, unnest(i.indoption) as option
+                    FROM pg_index i
                 ) idx
                 LEFT JOIN pg_class c ON idx.indrelid = c.oid
                 LEFT JOIN pg_class c2 ON idx.indexrelid = c2.oid
