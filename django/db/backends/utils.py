@@ -86,7 +86,6 @@ class CursorWrapper:
                 # params default might be backend specific.
                 return self.cursor.execute(sql)
             else:
-                print(sql, params)
                 return self.cursor.execute(sql, params)
 
     def _executemany(self, sql, param_list, *ignored_wrapper_args):

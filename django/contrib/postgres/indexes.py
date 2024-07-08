@@ -135,7 +135,7 @@ class BTreeIndex(PostgresIndex):
 
 
 class GinIndex(PostgresIndex):
-    suffix = "gin"
+    suffix = "btree"
 
     def __init__(
         self, *expressions, fastupdate=None, gin_pending_list_limit=None, **kwargs
