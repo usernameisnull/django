@@ -385,10 +385,9 @@ class DatabaseOperations(BaseDatabaseOperations):
 
     def on_conflict_suffix_sql(self, fields, on_conflict, update_fields, unique_fields):
         if on_conflict == OnConflict.IGNORE:
-            return "ON CONFLICT DO NOTHING"
+            return "ON DUPLICATE KEY UPDATE NOTHING"
         if on_conflict == OnConflict.UPDATE:
-            return "ON CONFLICT(%s) DO UPDATE SET %s" % (
-                ", ".join(map(self.quote_name, unique_fields)),
+            return "ON DUPLICATE KEY UPDATE %s" % (
                 ", ".join(
                     [
                         f"{field} = EXCLUDED.{field}"

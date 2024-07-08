@@ -282,7 +282,7 @@ class BaseDatabaseFeatures:
     # Does the backend support updating rows on constraint or uniqueness errors
     # during INSERT?
     supports_update_conflicts = False
-    supports_update_conflicts_with_target = False
+    # supports_update_conflicts_with_target = False
 
     # Does this backend require casting the results of CASE expressions used
     # in UPDATE statements to ensure the expression has the correct type?
