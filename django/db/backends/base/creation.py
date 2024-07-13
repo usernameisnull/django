@@ -59,7 +59,6 @@ class BaseDatabaseCreation:
         # where the test DB doesn't exist, in which case we need to
         # create it, then just not destroy it. If we instead skip
         # this, we will get an exception.
-        print("||||,_create_test_db.-1, test_database_name =", test_database_name)
         self._create_test_db(verbosity, autoclobber, keepdb)
 
         self.connection.close()
@@ -77,7 +76,6 @@ class BaseDatabaseCreation:
             # We report migrate messages at one level lower than that
             # requested. This ensures we don't get flooded with messages during
             # testing (unless you really ask to be flooded).
-            print("||||, before migrate")
             call_command(
                 "migrate",
                 verbosity=max(verbosity - 1, 0),
@@ -85,7 +83,6 @@ class BaseDatabaseCreation:
                 database=self.connection.alias,
                 run_syncdb=True,
             )
-            print("||||, end of migrate")
         finally:
             if self.connection.settings_dict["TEST"]["MIGRATE"] is False:
                 settings.MIGRATION_MODULES = old_migration_modules
@@ -188,26 +185,13 @@ class BaseDatabaseCreation:
         return TEST_DATABASE_PREFIX + self.connection.settings_dict["NAME"]
 
     def _execute_create_test_db(self, cursor, parameters, keepdb=False):
-        print("||||,_execute_create_test_db.2", parameters)
         cursor.execute("CREATE DATABASE %(dbname)s %(suffix)s" % parameters)
-        # if not (parameters["dbname"] == '"test_ut_other0712"' or parameters["dbname"] == '"test_ut_default0712"'):
-        #     print("||||,_execute_create_test_db.3")
-            # from django.core.management import call_command
-            # settings.DATABASES[self.connection.alias]["NAME"] = parameters["dbname"]
-            # call_command(
-            #     "migrate",
-            #     verbosity=max(1 - 1, 0),
-            #     interactive=False,
-            #     database=self.connection.alias,
-            #     run_syncdb=True,
-            # )
 
     def _create_test_db(self, verbosity, autoclobber, keepdb=False):
         """
         Internal implementation - create the test db tables.
         """
         test_database_name = self._get_test_db_name()
-        print("||||,test_database_name =", test_database_name)
         test_db_params = {
             "dbname": self.connection.ops.quote_name(test_database_name),
             "suffix": self.sql_table_creation_suffix(),
@@ -215,7 +199,6 @@ class BaseDatabaseCreation:
         # Create the test database and connect to it.
         with self._nodb_cursor() as cursor:
             try:
-                print("||||,_execute_create_test_db.0")
                 self._execute_create_test_db(cursor, test_db_params, keepdb)
             except Exception as e:
                 # if we want to keep the db, then no need to do any of the below,
@@ -272,7 +255,6 @@ class BaseDatabaseCreation:
         # We could skip this call if keepdb is True, but we instead
         # give it the keepdb param. See create_test_db for details.
         self._clone_test_db(suffix, verbosity, keepdb)
-        print("||||,_execute_create_test_db.4")
 
     def get_test_db_clone_settings(self, suffix):
         """

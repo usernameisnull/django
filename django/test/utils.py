@@ -226,14 +226,12 @@ def setup_databases(
                     )
                 if parallel > 1:
                     for index in range(parallel):
-                        print("||||, str(index + 1)", str(index + 1))
                         with time_keeper.timed("  Cloning '%s'" % alias):
                             connection.creation.clone_test_db(
                                 suffix=str(index + 1),
                                 verbosity=verbosity,
                                 keepdb=keepdb,
                             )
-                            print("||||,_execute_create_test_db.5")
             # Configure all other connections as mirrors of the first one
             else:
                 connections[alias].creation.set_as_test_mirror(

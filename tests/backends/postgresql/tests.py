@@ -428,9 +428,9 @@ class Tests(TestCase):
         new_connection.pg_version = 110009
         self.assertEqual(new_connection.get_database_version(), (11, 9))
 
-    @mock.patch.object(connection, "get_database_version", return_value=(11,))
+    @mock.patch.object(connection, "get_database_version", return_value=(7,))
     def test_check_database_version_supported(self, mocked_get_database_version):
-        msg = "PostgreSQL 12 or later is required (found 11)."
+        msg = "PostgreSQL 9 or later is required (found 7)."
         with self.assertRaisesMessage(NotSupportedError, msg):
             connection.check_database_version_supported()
         self.assertTrue(mocked_get_database_version.called)
