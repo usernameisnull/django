@@ -15,7 +15,11 @@ class DatabaseCreation(BaseDatabaseCreation):
         if encoding:
             suffix += " ENCODING '{}'".format(encoding)
         if template:
-            suffix += " TEMPLATE {}".format(self._quote_name(template))
+            # https://support.huaweicloud.com/centralized-devg-v8-gaussdb/gaussdb-42-0549.html
+            # only support template0 or templatem
+            # suffix += " TEMPLATE {}".format(self._quote_name(template))
+            # suffix += " TEMPLATE template0"
+            suffix += ' TEMPLATE "template0"'
         return suffix and "WITH" + suffix
 
     def sql_table_creation_suffix(self):
@@ -43,7 +47,23 @@ class DatabaseCreation(BaseDatabaseCreation):
                 # If the database should be kept and it already exists, don't
                 # try to create a new one.
                 return
+            print("||||_execute_create_test_db.1")
             super()._execute_create_test_db(cursor, parameters, keepdb)
+            if not (parameters["dbname"] == '"test_ut_other0712"' or parameters[
+                "dbname"] == '"test_ut_default0712"'):
+                print("||||,_execute_create_test_db.3")
+                from django.core.management import call_command
+                old_name = self.connection.settings_dict["NAME"]
+                temp = parameters["dbname"][1:-1]
+                self.connection.settings_dict["NAME"] = temp
+                call_command(
+                    "migrate",
+                    verbosity=max(1 - 1, 0),
+                    interactive=False,
+                    database=self.connection.alias,
+                    run_syncdb=True,
+                )
+                self.connection.settings_dict["NAME"] = old_name
         except Exception as e:
             if not isinstance(e.__cause__, errors.DuplicateDatabase):
                 # All errors except "database already exists" cancel tests.
@@ -67,6 +87,7 @@ class DatabaseCreation(BaseDatabaseCreation):
         }
         with self._nodb_cursor() as cursor:
             try:
+                print("||||,_execute_create_test_db.3")
                 self._execute_create_test_db(cursor, test_db_params, keepdb)
             except Exception:
                 try:
@@ -82,5 +103,6 @@ class DatabaseCreation(BaseDatabaseCreation):
                     cursor.execute("DROP DATABASE %(dbname)s" % test_db_params)
                     self._execute_create_test_db(cursor, test_db_params, keepdb)
                 except Exception as e:
+                    print("||||,_clone_test_db", test_db_params, keepdb)
                     self.log("Got an error cloning the test database: %s" % e)
                     sys.exit(2)

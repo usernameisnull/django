@@ -732,7 +732,8 @@ if __name__ == "__main__":
     if options.settings:
         os.environ["DJANGO_SETTINGS_MODULE"] = options.settings
     else:
-        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "test_sqlite")
+        # os.environ.setdefault("DJANGO_SETTINGS_MODULE", "test_sqlite")
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", "test_postgresql")
         options.settings = os.environ["DJANGO_SETTINGS_MODULE"]
 
     if options.selenium:

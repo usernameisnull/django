@@ -271,8 +271,8 @@ class Tests(TestCase):
             custom_role = "django_nonexistent_role"
             new_connection = connection.copy()
             new_connection.settings_dict["OPTIONS"]["assume_role"] = custom_role
-            msg = f'role "{custom_role}" does not exist'
-            with self.assertRaisesMessage(errors.InvalidParameterValue, msg):
+            msg = f'Invalid username/password,set role denied'
+            with self.assertRaisesMessage(errors.UndefinedObject, msg):
                 new_connection.connect()
         finally:
             new_connection.close()
