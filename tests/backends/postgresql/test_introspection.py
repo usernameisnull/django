@@ -17,16 +17,17 @@ class DatabaseSequenceTests(TestCase):
                     {
                         "table": Person._meta.db_table,
                         "column": "id",
-                        "name": "backends_person_id_seq",
+                        "name": "backends_person_id_identity",
                     }
                 ],
             )
-            cursor.execute("ALTER SEQUENCE backends_person_id_seq RENAME TO pers_seq")
-            seqs = connection.introspection.get_sequences(cursor, Person._meta.db_table)
-            self.assertEqual(
-                seqs,
-                [{"table": Person._meta.db_table, "column": "id", "name": "pers_seq"}],
-            )
+            # RENAME SEQUENCE is not yet supported in GaussDB
+            # cursor.execute("ALTER LARGE SEQUENCE backends_person_id_identity RENAME TO pers_seq")
+            # seqs = connection.introspection.get_sequences(cursor, Person._meta.db_table)
+            # self.assertEqual(
+            #     seqs,
+            #     [{"table": Person._meta.db_table, "column": "id", "name": "pers_seq"}],
+            # )
 
     def test_get_sequences_old_serial(self):
         with connection.cursor() as cursor:

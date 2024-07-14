@@ -143,7 +143,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
                     AND tbl.relname = %s
                     AND pg_catalog.pg_table_is_visible(tbl.oid)
             WHERE
-                s.relkind = 'S';
+                s.relkind = 'L';
         """,
             [table_name],
         )
