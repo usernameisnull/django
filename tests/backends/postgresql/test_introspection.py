@@ -32,7 +32,7 @@ class DatabaseSequenceTests(TestCase):
     def test_get_sequences_old_serial(self):
         with connection.cursor() as cursor:
             cursor.execute("CREATE TABLE testing (serial_field SERIAL);")
-            seqs = connection.introspection.get_sequences(cursor, "testing")
+            seqs = connection.introspection.get_sequences_old_serial(cursor, "testing")
             self.assertEqual(
                 seqs,
                 [
