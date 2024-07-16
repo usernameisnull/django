@@ -24,7 +24,7 @@ try:
     # Adapters.
     class BaseTzLoader(TimestamptzLoader):
         """
-        Load a PostgreSQL timestamptz using the a specific timezone.
+        Load a GaussDB timestamptz using the a specific timezone.
         The timezone can be None too, in which case it will be chopped.
         """
 
@@ -59,7 +59,7 @@ try:
         # decode to json.dumps() to json.loads(), when using a custom decoder
         # in JSONField.
         ctx.register_loader("jsonb", TextLoader)
-        # Don't convert automatically from PostgreSQL network types to Python
+        # Don't convert automatically from GaussDB network types to Python
         # ipaddress.
         ctx.register_loader("inet", TextLoader)
         ctx.register_loader("cidr", TextLoader)

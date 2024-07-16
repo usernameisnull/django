@@ -40,7 +40,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
     sql_delete_procedure = "DROP FUNCTION %(procedure)s(%(param_types)s)"
 
     def execute(self, sql, params=()):
-        # Merge the query client-side, as PostgreSQL won't do it server-side.
+        # Merge the query client-side, as GaussDB won't do it server-side.
         if params is None:
             return super().execute(sql, params)
         sql = self.connection.ops.compose_sql(str(sql), params)
@@ -295,7 +295,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             new_db_params,
             strict,
         )
-        # Added an index? Create any PostgreSQL-specific indexes.
+        # Added an index? Create any GaussDB-specific indexes.
         if (not (old_field.db_index or old_field.unique) and new_field.db_index) or (
             not old_field.unique and new_field.unique
         ):
@@ -303,7 +303,7 @@ class DatabaseSchemaEditor(BaseDatabaseSchemaEditor):
             if like_index_statement is not None:
                 self.execute(like_index_statement)
 
-        # Removed an index? Drop any PostgreSQL-specific indexes.
+        # Removed an index? Drop any GaussDB-specific indexes.
         if old_field.unique and not (new_field.db_index or new_field.unique):
             index_to_remove = self._create_index_name(
                 model._meta.db_table, [old_field.column], suffix="_like"

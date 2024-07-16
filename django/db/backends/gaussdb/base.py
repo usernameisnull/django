@@ -1,5 +1,5 @@
 """
-PostgreSQL database backend for Django.
+GaussDB database backend for Django.
 
 Requires psycopg2 >= 2.8.4 or psycopg >= 3.1.8
 """
@@ -89,7 +89,7 @@ def _get_varchar_column(data):
 class DatabaseWrapper(BaseDatabaseWrapper):
     vendor = "gaussdb"
     display_name = "GaussDB"
-    # This dictionary maps Field objects to their associated PostgreSQL column
+    # This dictionary maps Field objects to their associated GaussDB column
     # types, as strings. Column-type strings can contain format strings; they'll
     # be interpolated against the values of Field.__dict__ before being output.
     # If a column type is set to None, it won't be included in the output.
@@ -177,7 +177,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     features_class = DatabaseFeatures
     introspection_class = DatabaseIntrospection
     ops_class = DatabaseOperations
-    # PostgreSQL backend-specific attributes.
+    # GaussDB backend-specific attributes.
     _named_cursor_idx = 0
 
     def get_database_version(self):
@@ -200,7 +200,7 @@ class DatabaseWrapper(BaseDatabaseWrapper):
         if len(settings_dict["NAME"] or "") > self.ops.max_name_length():
             raise ImproperlyConfigured(
                 "The database name '%s' (%d characters) is longer than "
-                "PostgreSQL's limit of %d characters. Supply a shorter NAME "
+                "GaussDB's limit of %d characters. Supply a shorter NAME "
                 "in settings.DATABASES."
                 % (
                     settings_dict["NAME"],
@@ -407,13 +407,14 @@ class DatabaseWrapper(BaseDatabaseWrapper):
                 "to avoid running initialization queries against the production "
                 "database when it's not needed (for example, when running tests). "
                 "Django was unable to create a connection to the 'postgres' database "
-                "and will use the first PostgreSQL database instead.",
+                "and will use the first GaussDB database instead.",
                 RuntimeWarning,
             )
             for connection in connections.all():
                 if (
                     connection.vendor == "gaussdb"
-                    and connection.settings_dict["NAME"] != "gaussdb"
+                    # don't change it to "gaussdb", GaussDB has postgres db too.
+                    and connection.settings_dict["NAME"] != "postgres"
                 ):
                     conn = self.__class__(
                         {
