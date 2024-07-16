@@ -8,7 +8,7 @@ from ..models import Person, Tag
 
 
 @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB tests.")
-class PostgreSQLOperationsTests(SimpleTestCase):
+class GaussDBOperationsTests(SimpleTestCase):
     def test_sql_flush(self):
         self.assertEqual(
             connection.ops.sql_flush(
