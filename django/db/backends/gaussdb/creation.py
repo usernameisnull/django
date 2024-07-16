@@ -15,7 +15,11 @@ class DatabaseCreation(BaseDatabaseCreation):
         if encoding:
             suffix += " ENCODING '{}'".format(encoding)
         if template:
-            suffix += " TEMPLATE {}".format(self._quote_name(template))
+            # https://support.huaweicloud.com/centralized-devg-v8-gaussdb/gaussdb-42-0549.html
+            # only support template0 or templatem
+            # suffix += " TEMPLATE {}".format(self._quote_name(template))
+            # suffix += " TEMPLATE template0"
+            suffix += ' TEMPLATE "template0"'
         return suffix and "WITH" + suffix
 
     def sql_table_creation_suffix(self):
@@ -44,6 +48,20 @@ class DatabaseCreation(BaseDatabaseCreation):
                 # try to create a new one.
                 return
             super()._execute_create_test_db(cursor, parameters, keepdb)
+            if not (parameters["dbname"] == '"test_ut_other0712"' or parameters[
+                "dbname"] == '"test_ut_default0712"'):
+                from django.core.management import call_command
+                old_name = self.connection.settings_dict["NAME"]
+                temp = parameters["dbname"][1:-1]
+                self.connection.settings_dict["NAME"] = temp
+                call_command(
+                    "migrate",
+                    verbosity=max(1 - 1, 0),
+                    interactive=False,
+                    database=self.connection.alias,
+                    run_syncdb=True,
+                )
+                self.connection.settings_dict["NAME"] = old_name
         except Exception as e:
             if not isinstance(e.__cause__, errors.DuplicateDatabase):
                 # All errors except "database already exists" cancel tests.

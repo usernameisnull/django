@@ -15,12 +15,12 @@ from django.db.backends.base.base import BaseDatabaseWrapper
 from django.test import TestCase, override_settings
 
 try:
-    from django.db.backends.postgresql.psycopg_any import errors, is_psycopg3
+    from django.db.backends.gaussdb.psycopg_any import errors, is_psycopg3
 except ImportError:
     is_psycopg3 = False
 
 
-@unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL tests")
+@unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB tests")
 class Tests(TestCase):
     databases = {"default", "other"}
 
@@ -49,7 +49,7 @@ class Tests(TestCase):
             "to avoid running initialization queries against the production "
             "database when it's not needed (for example, when running tests). "
             "Django was unable to create a connection to the 'postgres' "
-            "database and will use the first PostgreSQL database instead."
+            "database and will use the first GaussDB database instead."
         )
         with self.assertWarnsMessage(RuntimeWarning, msg):
             with mock.patch(
@@ -71,7 +71,7 @@ class Tests(TestCase):
         self.assertEqual(
             cursor.db.settings_dict["NAME"], connections["other"].settings_dict["NAME"]
         )
-        # Cursor is yielded only for the first PostgreSQL database.
+        # Cursor is yielded only for the first GaussDB database.
         with self.assertWarnsMessage(RuntimeWarning, msg):
             with mock.patch(
                 "django.db.backends.base.base.BaseDatabaseWrapper.connect",
@@ -85,7 +85,7 @@ class Tests(TestCase):
     def test_nodb_cursor_raises_postgres_authentication_failure(self):
         """
         _nodb_cursor() re-raises authentication failure to the 'postgres' db
-        when other connection to the PostgreSQL database isn't available.
+        when other connection to the GaussDB database isn't available.
         """
 
         def mocked_connect(self):
@@ -102,7 +102,7 @@ class Tests(TestCase):
             "to avoid running initialization queries against the production "
             "database when it's not needed (for example, when running tests). "
             "Django was unable to create a connection to the 'postgres' "
-            "database and will use the first PostgreSQL database instead."
+            "database and will use the first GaussDB database instead."
         )
         with self.assertWarnsMessage(RuntimeWarning, msg):
             mocker_connections_all = mock.patch(
@@ -126,21 +126,21 @@ class Tests(TestCase):
                 raise DatabaseError("exception")
 
     def test_database_name_too_long(self):
-        from django.db.backends.postgresql.base import DatabaseWrapper
+        from django.db.backends.gaussdb.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
         max_name_length = connection.ops.max_name_length()
         settings["NAME"] = "a" + (max_name_length * "a")
         msg = (
             "The database name '%s' (%d characters) is longer than "
-            "PostgreSQL's limit of %s characters. Supply a shorter NAME in "
+            "GaussDB's limit of %s characters. Supply a shorter NAME in "
             "settings.DATABASES."
         ) % (settings["NAME"], max_name_length + 1, max_name_length)
         with self.assertRaisesMessage(ImproperlyConfigured, msg):
             DatabaseWrapper(settings).get_connection_params()
 
     def test_database_name_empty(self):
-        from django.db.backends.postgresql.base import DatabaseWrapper
+        from django.db.backends.gaussdb.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
         settings["NAME"] = ""
@@ -152,7 +152,7 @@ class Tests(TestCase):
             DatabaseWrapper(settings).get_connection_params()
 
     def test_service_name(self):
-        from django.db.backends.postgresql.base import DatabaseWrapper
+        from django.db.backends.gaussdb.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
         settings["OPTIONS"] = {"service": "my_service"}
@@ -163,7 +163,7 @@ class Tests(TestCase):
 
     def test_service_name_default_db(self):
         # None is used to connect to the default 'postgres' db.
-        from django.db.backends.postgresql.base import DatabaseWrapper
+        from django.db.backends.gaussdb.base import DatabaseWrapper
 
         settings = connection.settings_dict.copy()
         settings["NAME"] = None
@@ -174,7 +174,7 @@ class Tests(TestCase):
 
     def test_connect_and_rollback(self):
         """
-        PostgreSQL shouldn't roll back SET TIME ZONE, even if the first
+        GaussDB shouldn't roll back SET TIME ZONE, even if the first
         transaction is rolled back (#17062).
         """
         new_connection = connection.copy()
@@ -228,11 +228,11 @@ class Tests(TestCase):
         The transaction level can be configured with
         DATABASES ['OPTIONS']['isolation_level'].
         """
-        from django.db.backends.postgresql.psycopg_any import IsolationLevel
+        from django.db.backends.gaussdb.psycopg_any import IsolationLevel
 
         # Since this is a django.test.TestCase, a transaction is in progress
         # and the isolation level isn't reported as 0. This test assumes that
-        # PostgreSQL is configured with the default isolation level.
+        # GaussDB is configured with the default isolation level.
         # Check the level on the psycopg connection, not the Django wrapper.
         self.assertIsNone(connection.connection.isolation_level)
 
@@ -271,8 +271,8 @@ class Tests(TestCase):
             custom_role = "django_nonexistent_role"
             new_connection = connection.copy()
             new_connection.settings_dict["OPTIONS"]["assume_role"] = custom_role
-            msg = f'role "{custom_role}" does not exist'
-            with self.assertRaisesMessage(errors.InvalidParameterValue, msg):
+            msg = f'Invalid username/password,set role denied'
+            with self.assertRaisesMessage(errors.UndefinedObject, msg):
                 new_connection.connect()
         finally:
             new_connection.close()
@@ -283,7 +283,7 @@ class Tests(TestCase):
         The server-side parameters binding role can be enabled with DATABASES
         ["OPTIONS"]["server_side_binding"].
         """
-        from django.db.backends.postgresql.base import ServerBindingCursor
+        from django.db.backends.gaussdb.base import ServerBindingCursor
 
         new_connection = connection.copy()
         new_connection.settings_dict["OPTIONS"]["server_side_binding"] = True
@@ -301,7 +301,7 @@ class Tests(TestCase):
         A custom cursor factory can be configured with DATABASES["options"]
         ["cursor_factory"].
         """
-        from django.db.backends.postgresql.base import Cursor
+        from django.db.backends.gaussdb.base import Cursor
 
         class MyCursor(Cursor):
             pass
@@ -351,7 +351,7 @@ class Tests(TestCase):
         self.assertEqual(a[0], b[0])
 
     def test_lookup_cast(self):
-        from django.db.backends.postgresql.operations import DatabaseOperations
+        from django.db.backends.gaussdb.operations import DatabaseOperations
 
         do = DatabaseOperations(connection=None)
         lookups = (
@@ -377,7 +377,7 @@ class Tests(TestCase):
                     )
 
     def test_lookup_cast_isnull_noop(self):
-        from django.db.backends.postgresql.operations import DatabaseOperations
+        from django.db.backends.gaussdb.operations import DatabaseOperations
 
         do = DatabaseOperations(connection=None)
         # Using __isnull lookup doesn't require casting.
@@ -391,7 +391,7 @@ class Tests(TestCase):
                 self.assertEqual(do.lookup_cast("isnull", field_type), "%s")
 
     def test_correct_extraction_psycopg_version(self):
-        from django.db.backends.postgresql.base import Database, psycopg_version
+        from django.db.backends.gaussdb.base import Database, psycopg_version
 
         with mock.patch.object(Database, "__version__", "4.2.1 (dt dec pq3 ext lo64)"):
             self.assertEqual(psycopg_version(), (4, 2, 1))
@@ -428,9 +428,9 @@ class Tests(TestCase):
         new_connection.pg_version = 110009
         self.assertEqual(new_connection.get_database_version(), (11, 9))
 
-    @mock.patch.object(connection, "get_database_version", return_value=(11,))
+    @mock.patch.object(connection, "get_database_version", return_value=(7,))
     def test_check_database_version_supported(self, mocked_get_database_version):
-        msg = "PostgreSQL 12 or later is required (found 11)."
+        msg = "GaussDB 8 or later is required (found 7)."
         with self.assertRaisesMessage(NotSupportedError, msg):
             connection.check_database_version_supported()
         self.assertTrue(mocked_get_database_version.called)
