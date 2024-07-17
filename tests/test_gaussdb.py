@@ -14,7 +14,7 @@
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.gaussdb',
         'NAME': 'for_ut_default',
         'USER': 'root',
         'PASSWORD': 'your password',
@@ -25,7 +25,7 @@ DATABASES = {
         }
     },
     "other": {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.db.backends.gaussdb',
         'NAME': 'for_ut_other',
         'USER': 'root',
         'PASSWORD': 'your password',
