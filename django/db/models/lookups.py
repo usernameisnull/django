@@ -320,6 +320,16 @@ class PostgresOperatorLookup(Lookup):
         params = tuple(lhs_params) + tuple(rhs_params)
         return "%s %s %s" % (lhs, self.postgres_operator, rhs), params
 
+class GaussDBOperatorLookup(Lookup):
+    """Lookup defined by operators on GaussDB."""
+
+    gaussdb_operator = None
+
+    def as_gaussdb(self, compiler, connection):
+        lhs, lhs_params = self.process_lhs(compiler, connection)
+        rhs, rhs_params = self.process_rhs(compiler, connection)
+        params = tuple(lhs_params) + tuple(rhs_params)
+        return "%s %s %s" % (lhs, self.gaussdb_operator, rhs), params
 
 @Field.register_lookup
 class Exact(FieldGetDbPrepValueMixin, BuiltinLookup):
