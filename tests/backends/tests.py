@@ -462,6 +462,10 @@ class BackendTestCase(TransactionTestCase):
         connection.vendor == "postgresql",
         "Psycopg specific cursor.closed attribute needed",
     )
+    @unittest.skipUnless(
+        connection.vendor == "gaussdb",
+        "Psycopg specific cursor.closed attribute needed",
+    )
     def test_cursor_contextmanager_closing(self):
         # There isn't a generic way to test that cursors are closed, but
         # psycopg offers us a way to check that by closed attribute.

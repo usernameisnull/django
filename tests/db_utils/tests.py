@@ -61,7 +61,10 @@ class ConnectionHandlerTests(SimpleTestCase):
 
 class DatabaseErrorWrapperTests(TestCase):
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL test")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB test")
     def test_reraising_backend_specific_database_exception(self):
+        from django.db.backends.gaussdb.psycopg_any import (is_psycopg3 as
+                                                            is_psycopg3_gauss)
         from django.db.backends.postgresql.psycopg_any import is_psycopg3
 
         with connection.cursor() as cursor:
@@ -70,7 +73,7 @@ class DatabaseErrorWrapperTests(TestCase):
                 cursor.execute('DROP TABLE "X"')
         self.assertNotEqual(type(cm.exception), type(cm.exception.__cause__))
         self.assertIsNotNone(cm.exception.__cause__)
-        if is_psycopg3:
+        if is_psycopg3 or is_psycopg3_gauss:
             self.assertIsNotNone(cm.exception.__cause__.diag.sqlstate)
             self.assertIsNotNone(cm.exception.__cause__.diag.message_primary)
         else:
@@ -84,7 +87,7 @@ class LoadBackendTests(SimpleTestCase):
             "'foo' isn't an available database backend or couldn't be "
             "imported. Check the above exception. To use one of the built-in "
             "backends, use 'django.db.backends.XXX', where XXX is one of:\n"
-            "    'mysql', 'oracle', 'postgresql', 'sqlite3'"
+            "    'mysql', 'oracle', 'postgresql', 'gaussdb', 'sqlite3'"
         )
         with self.assertRaisesMessage(ImproperlyConfigured, msg) as cm:
             load_backend("foo")

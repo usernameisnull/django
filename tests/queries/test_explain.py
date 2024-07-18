@@ -74,6 +74,7 @@ class ExplainTests(TestCase):
             Tag.objects.explain(format="does not exist")
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_postgres_options(self):
         qs = Tag.objects.filter(name="test")
         test_options = [

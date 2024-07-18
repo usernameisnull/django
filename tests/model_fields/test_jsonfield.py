@@ -362,7 +362,8 @@ class TestQuerying(TestCase):
                     for value in cls.primitives
                 ]
             )
-        cls.raw_sql = "%s::jsonb" if connection.vendor == "postgresql" else "%s"
+        cls.raw_sql = "%s::jsonb" if (connection.vendor == "gaussdb" or
+                                      connection.vendor == "postgresql") else "%s"
 
     def test_exact(self):
         self.assertSequenceEqual(

@@ -1223,6 +1223,7 @@ class SchemaTests(TransactionTestCase):
             editor.alter_field(Author, old_field, new_field, strict=True)
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_alter_char_field_decrease_length(self):
         # Create the table.
         with connection.schema_editor() as editor:
@@ -1238,6 +1239,7 @@ class SchemaTests(TransactionTestCase):
                 editor.alter_field(Author, old_field, new_field, strict=True)
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_alter_field_with_custom_db_type(self):
         from django.contrib.postgres.fields import ArrayField
 
@@ -1259,6 +1261,7 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_alter_array_field_decrease_base_field_length(self):
         from django.contrib.postgres.fields import ArrayField
 
@@ -1283,6 +1286,7 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_alter_array_field_decrease_nested_base_field_length(self):
         from django.contrib.postgres.fields import ArrayField
 
@@ -1307,6 +1311,7 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     @skipUnlessDBFeature(
         "supports_collation_on_charfield",
         "supports_non_deterministic_collations",
@@ -1356,6 +1361,7 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     @skipUnlessDBFeature(
         "supports_collation_on_charfield",
         "supports_non_deterministic_collations",
@@ -1392,6 +1398,7 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_unique_with_deterministic_collation_charfield(self):
         deterministic_collation = connection.features.test_collations.get(
@@ -1426,6 +1433,7 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     @skipUnlessDBFeature("supports_collation_on_charfield")
     def test_relation_to_deterministic_collation_charfield(self):
         deterministic_collation = connection.features.test_collations.get(
@@ -1997,6 +2005,7 @@ class SchemaTests(TransactionTestCase):
 
     @isolate_apps("schema")
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_alter_serial_auto_field_to_bigautofield(self):
         class SerialAutoField(Model):
             id = SmallAutoField(primary_key=True)
@@ -4545,6 +4554,7 @@ class SchemaTests(TransactionTestCase):
             editor.add_field(Author, new_field)
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_add_indexed_charfield(self):
         field = CharField(max_length=255, db_index=True)
         field.set_attributes_from_name("nom_de_plume")
@@ -4561,6 +4571,7 @@ class SchemaTests(TransactionTestCase):
         )
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_add_unique_charfield(self):
         field = CharField(max_length=255, unique=True)
         field.set_attributes_from_name("nom_de_plume")
@@ -4774,6 +4785,7 @@ class SchemaTests(TransactionTestCase):
         )
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_alter_field_add_index_to_charfield(self):
         # Create the table and verify no initial indexes.
         with connection.schema_editor() as editor:
@@ -4795,6 +4807,7 @@ class SchemaTests(TransactionTestCase):
         self.assertEqual(self.get_constraints_for_column(Author, "name"), [])
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_alter_field_add_unique_to_charfield(self):
         # Create the table and verify no initial indexes.
         with connection.schema_editor() as editor:
@@ -4816,6 +4829,7 @@ class SchemaTests(TransactionTestCase):
         self.assertEqual(self.get_constraints_for_column(Author, "name"), [])
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_alter_field_add_index_to_textfield(self):
         # Create the table and verify no initial indexes.
         with connection.schema_editor() as editor:
@@ -4837,6 +4851,7 @@ class SchemaTests(TransactionTestCase):
         self.assertEqual(self.get_constraints_for_column(Note, "info"), [])
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_alter_field_add_unique_to_charfield_with_db_index(self):
         # Create the table and verify initial indexes.
         with connection.schema_editor() as editor:
@@ -4866,6 +4881,7 @@ class SchemaTests(TransactionTestCase):
         )
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_alter_field_remove_unique_and_db_index_from_charfield(self):
         # Create the table and verify initial indexes.
         with connection.schema_editor() as editor:
@@ -4894,6 +4910,7 @@ class SchemaTests(TransactionTestCase):
         )
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_alter_field_swap_unique_and_db_index_with_charfield(self):
         # Create the table and verify initial indexes.
         with connection.schema_editor() as editor:
@@ -4923,6 +4940,7 @@ class SchemaTests(TransactionTestCase):
         )
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL specific")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB specific")
     def test_alter_field_add_db_index_to_charfield_with_unique(self):
         # Create the table and verify initial indexes.
         with connection.schema_editor() as editor:
@@ -5126,6 +5144,9 @@ class SchemaTests(TransactionTestCase):
     @isolate_apps("schema")
     @unittest.skipUnless(
         connection.vendor == "postgresql", "PostgreSQL specific db_table syntax."
+    )
+    @unittest.skipUnless(
+        connection.vendor == "gaussdb", "GaussDB specific db_table syntax."
     )
     def test_namespaced_db_table_foreign_key_reference(self):
         with connection.cursor() as cursor:
@@ -5429,6 +5450,7 @@ class SchemaTests(TransactionTestCase):
         try:
             if connection.vendor == "mysql":
                 cs_collation = "latin1_general_cs"
+            # TODO: GaussDB may not support these
             elif connection.vendor == "postgresql":
                 cs_collation = "en-x-icu"
                 with connection.cursor() as cursor:
@@ -5458,6 +5480,6 @@ class SchemaTests(TransactionTestCase):
                 editor.alter_field(Author, new_field_ci, new_field_cs, strict=True)
             self.assertIs(Author.objects.filter(name="Andrew").exists(), False)
         finally:
-            if connection.vendor == "postgresql":
+            if connection.vendor == "postgresql" or connection.vendor == "gaussdb":
                 with connection.cursor() as cursor:
                     cursor.execute("DROP COLLATION IF EXISTS case_insensitive")

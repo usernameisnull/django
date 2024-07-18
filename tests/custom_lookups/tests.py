@@ -278,6 +278,9 @@ class LookupTests(TestCase):
     @unittest.skipUnless(
         connection.vendor == "postgresql", "PostgreSQL specific SQL used"
     )
+    @unittest.skipUnless(
+        connection.vendor == "gaussdb", "GaussDB specific SQL used"
+    )
     def test_birthdate_month(self):
         a1 = Author.objects.create(name="a1", birthdate=date(1981, 2, 16))
         a2 = Author.objects.create(name="a2", birthdate=date(2012, 2, 29))
@@ -467,6 +470,9 @@ class YearLteTests(TestCase):
     @unittest.skipUnless(
         connection.vendor == "postgresql", "PostgreSQL specific SQL used"
     )
+    @unittest.skipUnless(
+        connection.vendor == "gaussdb", "GaussDB specific SQL used"
+    )
     def test_year_lte(self):
         baseqs = Author.objects.order_by("name")
         self.assertSequenceEqual(
@@ -486,6 +492,9 @@ class YearLteTests(TestCase):
 
     @unittest.skipUnless(
         connection.vendor == "postgresql", "PostgreSQL specific SQL used"
+    )
+    @unittest.skipUnless(
+        connection.vendor == "gaussdb", "GaussDB specific SQL used"
     )
     def test_year_lte_fexpr(self):
         self.a2.age = 2011

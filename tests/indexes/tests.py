@@ -62,6 +62,7 @@ class SchemaIndexesTests(TestCase):
             "mysql": "indexes_article_c1_c2_looooooooooooooooooo_255179b2ix",
             "oracle": "indexes_a_c1_c2_loo_255179b2ix",
             "postgresql": "indexes_article_c1_c2_loooooooooooooooooo_255179b2ix",
+            "gaussdb": "indexes_article_c1_c2_loooooooooooooooooo_255179b2ix",
             "sqlite": "indexes_article_c1_c2_l%sng_255179b2ix" % ("o" * 100),
         }
         if connection.vendor not in expected:
@@ -150,6 +151,7 @@ class PartialIndexConditionIgnoredTests(TransactionTestCase):
 
 
 @skipUnless(connection.vendor == "postgresql", "PostgreSQL tests")
+@skipUnless(connection.vendor == "gaussdb", "GaussDB tests")
 class SchemaIndexesPostgreSQLTests(TransactionTestCase):
     available_apps = ["indexes"]
     get_opclass_query = """

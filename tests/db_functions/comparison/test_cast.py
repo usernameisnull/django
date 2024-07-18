@@ -154,6 +154,7 @@ class CastTests(TestCase):
         self.assertEqual(cast_float, 0.125)
 
     @unittest.skipUnless(connection.vendor == "postgresql", "PostgreSQL test")
+    @unittest.skipUnless(connection.vendor == "gaussdb", "GaussDB test")
     def test_expression_wrapped_with_parentheses_on_postgresql(self):
         """
         The SQL for the Cast expression is wrapped with parentheses in case

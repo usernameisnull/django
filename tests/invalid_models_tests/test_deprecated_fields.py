@@ -67,6 +67,7 @@ class DeprecatedFieldsTests(SimpleTestCase):
         )
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
+    @skipUnless(connection.vendor == "gaussdb", "GaussDB specific SQL")
     def test_postgres_jsonfield_deprecated(self):
         from django.contrib.postgres.fields import JSONField
 
@@ -87,6 +88,7 @@ class DeprecatedFieldsTests(SimpleTestCase):
         )
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
+    @skipUnless(connection.vendor == "gaussdb", "GaussDB specific SQL")
     def test_postgres_ci_fields_deprecated(self):
         from django.contrib.postgres.fields import (
             ArrayField,

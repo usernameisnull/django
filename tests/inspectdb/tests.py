@@ -394,6 +394,7 @@ class InspectDBTestCase(TestCase):
         self.assertIn("('non_unique_column', 'non_unique_column_0')", fields)
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
+    @skipUnless(connection.vendor == "gaussdb", "GaussDB specific SQL")
     def test_unsupported_unique_together(self):
         """Unsupported index types (COALESCE here) are skipped."""
         with connection.cursor() as c:
@@ -537,6 +538,7 @@ class InspectDBTransactionalTests(TransactionTestCase):
                 cursor.execute("DROP MATERIALIZED VIEW inspectdb_people_materialized")
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
+    @skipUnless(connection.vendor == "gaussdb", "GaussDB specific SQL")
     def test_include_partitions(self):
         """inspectdb --include-partitions creates models for partitions."""
         with connection.cursor() as cursor:
@@ -581,6 +583,7 @@ class InspectDBTransactionalTests(TransactionTestCase):
                 cursor.execute("DROP TABLE IF EXISTS inspectdb_partition_parent")
 
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
+    @skipUnless(connection.vendor == "gaussdb", "GaussDB specific SQL")
     def test_foreign_data_wrapper(self):
         with connection.cursor() as cursor:
             cursor.execute("CREATE EXTENSION IF NOT EXISTS file_fdw")
