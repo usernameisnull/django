@@ -143,32 +143,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
                     AND tbl.relname = %s
                     AND pg_catalog.pg_table_is_visible(tbl.oid)
             WHERE
-                s.relkind = 'L';
-        """,
-            [table_name],
-        )
-        return [
-            {"name": row[0], "table": table_name, "column": row[1]}
-            for row in cursor.fetchall()
-        ]
-    def get_sequences_old_serial(self, cursor, table_name, table_fields=()):
-        cursor.execute(
-            """
-            SELECT
-                s.relname AS sequence_name,
-                a.attname AS colname
-            FROM
-                pg_class s
-                JOIN pg_depend d ON d.objid = s.oid
-                    AND d.classid = 'pg_class'::regclass
-                    AND d.refclassid = 'pg_class'::regclass
-                JOIN pg_attribute a ON d.refobjid = a.attrelid
-                    AND d.refobjsubid = a.attnum
-                JOIN pg_class tbl ON tbl.oid = d.refobjid
-                    AND tbl.relname = %s
-                    AND pg_catalog.pg_table_is_visible(tbl.oid)
-            WHERE
-                s.relkind = 'S';
+                s.relkind in ('S', 'L');
         """,
             [table_name],
         )
@@ -218,10 +193,7 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
                 c.conname,
                 array(
                     SELECT attname
-                    FROM (
-                        SELECT unnest(c.conkey) AS colid,
-                               generate_series(1, array_length(c.conkey, 1)) AS arridx
-                    ) AS cols
+                    FROM (SELECT *, rownum as arridx FROM (SELECT unnest(array[c.conkey]) as colid)) cols
                     JOIN pg_attribute AS ca ON cols.colid = ca.attnum
                     WHERE ca.attrelid = c.conrelid
                     ORDER BY cols.arridx
@@ -254,17 +226,16 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
             """
             SELECT
                 indexname,
-                array_agg(attname ORDER BY rnum),
+                array_agg(attname ORDER BY arridx),
                 indisunique,
                 indisprimary,
-                array_agg(ordering ORDER BY rnum),
+                array_agg(ordering ORDER BY arridx),
                 amname,
                 exprdef,
                 s2.attoptions
             FROM (
                 SELECT
-                    row_number() OVER () as rnum, c2.relname as indexname,
-                    idx.*, attr.attname, am.amname,
+                    c2.relname as indexname, idx.*, attr.attname, am.amname,
                     CASE
                         WHEN idx.indexprs IS NOT NULL THEN
                             pg_get_indexdef(idx.indexrelid)
@@ -277,9 +248,12 @@ class DatabaseIntrospection(BaseDatabaseIntrospection):
                     END as ordering,
                     c2.reloptions as attoptions
                 FROM (
-                    SELECT
-                        *, unnest(i.indkey) as key, unnest(i.indoption) as option
-                    FROM pg_index i
+                    SELECT *
+                    FROM (
+                        SELECT *, unnest(i.indkey) as key, unnest(i.indoption) as option, rownum as arridx
+                        FROM
+                            pg_index i
+                        ) koi
                 ) idx
                 LEFT JOIN pg_class c ON idx.indrelid = c.oid
                 LEFT JOIN pg_class c2 ON idx.indexrelid = c2.oid

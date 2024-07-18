@@ -425,8 +425,8 @@ class Tests(TestCase):
 
     def test_get_database_version(self):
         new_connection = connection.copy()
-        new_connection.pg_version = 110009
-        self.assertEqual(new_connection.get_database_version(), (11, 9))
+        new_connection.gaussdb_version = '8.102.0'
+        self.assertEqual(new_connection.get_database_version(), (8, 102, 0))
 
     @mock.patch.object(connection, "get_database_version", return_value=(7,))
     def test_check_database_version_supported(self, mocked_get_database_version):

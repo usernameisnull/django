@@ -17,8 +17,6 @@ class DatabaseCreation(BaseDatabaseCreation):
         if template:
             # https://support.huaweicloud.com/centralized-devg-v8-gaussdb/gaussdb-42-0549.html
             # only support template0 or templatem
-            # suffix += " TEMPLATE {}".format(self._quote_name(template))
-            # suffix += " TEMPLATE template0"
             suffix += ' TEMPLATE "template0"'
         return suffix and "WITH" + suffix
 

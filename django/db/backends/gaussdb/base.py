@@ -180,12 +180,20 @@ class DatabaseWrapper(BaseDatabaseWrapper):
     # GaussDB backend-specific attributes.
     _named_cursor_idx = 0
 
+    @cached_property
+    def gaussdb_version(self):
+        with self.temporary_connection():
+            with self.connection.cursor() as cur:
+                cur.execute("SHOW  product_version")
+                version = cur.fetchone()[0]
+            return version
+
     def get_database_version(self):
         """
         Return a tuple of the database's version.
-        E.g. for pg_version 120004, return (12, 4).
+        E.g. for gaussdb_version 8.102.0, return (8, 102, 0).
         """
-        return divmod(self.pg_version, 10000)
+        return tuple(int(i) for i in self.gaussdb_version.split('.'))
 
     def get_connection_params(self):
         settings_dict = self.settings_dict

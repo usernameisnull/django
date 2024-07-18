@@ -33,7 +33,7 @@ class DatabaseFeatures(BaseDatabaseFeatures):
     nulls_order_largest = True
     closed_cursor_error_class = InterfaceError
     greatest_least_ignores_nulls = True
-    can_clone_databases = True
+    can_clone_databases = False
     supports_temporal_subtraction = True
     supports_slicing_ordering_in_compound = True
     create_test_procedure_without_params_sql = """
