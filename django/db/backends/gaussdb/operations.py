@@ -168,8 +168,9 @@ class DatabaseOperations(BaseDatabaseOperations):
             if internal_type in ("IPAddressField", "GenericIPAddressField"):
                 lookup = "HOST(%s)"
             # RemovedInDjango51Warning.
-            elif internal_type in ("CICharField", "CIEmailField", "CITextField"):
-                lookup = "%s::citext"
+            # no citext in gaussdb
+            # elif internal_type in ("CICharField", "CIEmailField", "CITextField"):
+            #     lookup = "%s::citext"
             else:
                 lookup = "%s::text"
 

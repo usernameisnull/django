@@ -73,17 +73,17 @@ class DatabaseFeatures(BaseDatabaseFeatures):
     can_rename_index = True
     test_collations = {
         "deterministic": "C",
-        "non_default": "sv-x-icu",
-        "swedish_ci": "sv-x-icu",
+        # "non_default": "sv-x-icu",
+        # "swedish_ci": "sv-x-icu",
     }
     test_now_utc_template = "STATEMENT_TIMESTAMP() AT TIME ZONE 'UTC'"
 
     django_test_skips = {
-        "opclasses are PostgreSQL only.": {
-            "indexes.tests.SchemaIndexesNotPostgreSQLTests."
+        "opclasses are GaussDB only.": {
+            "indexes.tests.SchemaIndexesNotGaussDBTests."
             "test_create_index_ignores_opclasses",
         },
-        "PostgreSQL requires casting to text.": {
+        "GaussDB requires casting to text.": {
             "lookup.tests.LookupTests.test_textfield_exact_null",
         },
     }

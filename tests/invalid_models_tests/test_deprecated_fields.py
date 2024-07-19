@@ -87,6 +87,7 @@ class DeprecatedFieldsTests(SimpleTestCase):
             ],
         )
 
+    # no citext in gaussdb
     @skipUnless(connection.vendor == "postgresql", "PostgreSQL specific SQL")
     @skipUnless(connection.vendor == "gaussdb", "GaussDB specific SQL")
     def test_postgres_ci_fields_deprecated(self):

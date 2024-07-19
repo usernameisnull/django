@@ -9,102 +9,102 @@ from django.db.migrations.operations.base import Operation
 from django.db.models.constraints import CheckConstraint
 
 
-class CreateExtension(Operation):
-    reversible = True
-
-    def __init__(self, name):
-        self.name = name
-
-    def state_forwards(self, app_label, state):
-        pass
-
-    def database_forwards(self, app_label, schema_editor, from_state, to_state):
-        if schema_editor.connection.vendor != "gaussdb" or not router.allow_migrate(
-            schema_editor.connection.alias, app_label
-        ):
-            return
-        if not self.extension_exists(schema_editor, self.name):
-            schema_editor.execute(
-                "CREATE EXTENSION IF NOT EXISTS %s"
-                % schema_editor.quote_name(self.name)
-            )
-        # Clear cached, stale oids.
-        get_hstore_oids.cache_clear()
-        get_citext_oids.cache_clear()
-        # Registering new type handlers cannot be done before the extension is
-        # installed, otherwise a subsequent data migration would use the same
-        # connection.
-        register_type_handlers(schema_editor.connection)
-        if hasattr(schema_editor.connection, "register_geometry_adapters"):
-            schema_editor.connection.register_geometry_adapters(
-                schema_editor.connection.connection, True
-            )
-
-    def database_backwards(self, app_label, schema_editor, from_state, to_state):
-        if not router.allow_migrate(schema_editor.connection.alias, app_label):
-            return
-        if self.extension_exists(schema_editor, self.name):
-            schema_editor.execute(
-                "DROP EXTENSION IF EXISTS %s" % schema_editor.quote_name(self.name)
-            )
-        # Clear cached, stale oids.
-        get_hstore_oids.cache_clear()
-        get_citext_oids.cache_clear()
-
-    def extension_exists(self, schema_editor, extension):
-        with schema_editor.connection.cursor() as cursor:
-            cursor.execute(
-                "SELECT 1 FROM pg_extension WHERE extname = %s",
-                [extension],
-            )
-            return bool(cursor.fetchone())
-
-    def describe(self):
-        return "Creates extension %s" % self.name
-
-    @property
-    def migration_name_fragment(self):
-        return "create_extension_%s" % self.name
-
-
-class BloomExtension(CreateExtension):
-    def __init__(self):
-        self.name = "bloom"
+# class CreateExtension(Operation):
+#     reversible = True
+#
+#     def __init__(self, name):
+#         self.name = name
+#
+#     def state_forwards(self, app_label, state):
+#         pass
+#
+#     def database_forwards(self, app_label, schema_editor, from_state, to_state):
+#         if schema_editor.connection.vendor != "gaussdb" or not router.allow_migrate(
+#             schema_editor.connection.alias, app_label
+#         ):
+#             return
+#         if not self.extension_exists(schema_editor, self.name):
+#             schema_editor.execute(
+#                 "CREATE EXTENSION IF NOT EXISTS %s"
+#                 % schema_editor.quote_name(self.name)
+#             )
+#         # Clear cached, stale oids.
+#         get_hstore_oids.cache_clear()
+#         get_citext_oids.cache_clear()
+#         # Registering new type handlers cannot be done before the extension is
+#         # installed, otherwise a subsequent data migration would use the same
+#         # connection.
+#         register_type_handlers(schema_editor.connection)
+#         if hasattr(schema_editor.connection, "register_geometry_adapters"):
+#             schema_editor.connection.register_geometry_adapters(
+#                 schema_editor.connection.connection, True
+#             )
+#
+#     def database_backwards(self, app_label, schema_editor, from_state, to_state):
+#         if not router.allow_migrate(schema_editor.connection.alias, app_label):
+#             return
+#         if self.extension_exists(schema_editor, self.name):
+#             schema_editor.execute(
+#                 "DROP EXTENSION IF EXISTS %s" % schema_editor.quote_name(self.name)
+#             )
+#         # Clear cached, stale oids.
+#         get_hstore_oids.cache_clear()
+#         get_citext_oids.cache_clear()
+#
+#     def extension_exists(self, schema_editor, extension):
+#         with schema_editor.connection.cursor() as cursor:
+#             cursor.execute(
+#                 "SELECT 1 FROM pg_extension WHERE extname = %s",
+#                 [extension],
+#             )
+#             return bool(cursor.fetchone())
+#
+#     def describe(self):
+#         return "Creates extension %s" % self.name
+#
+#     @property
+#     def migration_name_fragment(self):
+#         return "create_extension_%s" % self.name
 
 
-class BtreeGinExtension(CreateExtension):
-    def __init__(self):
-        self.name = "btree_gin"
+# class BloomExtension(CreateExtension):
+#     def __init__(self):
+#         self.name = "bloom"
+#
+#
+# # class BtreeGinExtension(CreateExtension):
+#     def __init__(self):
+#         self.name = "btree_gin"
+#
+#
+# # class BtreeGistExtension(CreateExtension):
+#     def __init__(self):
+#         self.name = "btree_gist"
+#
+#
+# # class CITextExtension(CreateExtension):
+#     def __init__(self):
+#         self.name = "citext"
+#
+#
+# # class CryptoExtension(CreateExtension):
+#     def __init__(self):
+#         self.name = "pgcrypto"
+#
+#
+# # class HStoreExtension(CreateExtension):
+#     def __init__(self):
+#         self.name = "hstore"
 
 
-class BtreeGistExtension(CreateExtension):
-    def __init__(self):
-        self.name = "btree_gist"
+# class TrigramExtension(CreateExtension):
+#     def __init__(self):
+#         self.name = "pg_trgm"
 
 
-class CITextExtension(CreateExtension):
-    def __init__(self):
-        self.name = "citext"
-
-
-class CryptoExtension(CreateExtension):
-    def __init__(self):
-        self.name = "pgcrypto"
-
-
-class HStoreExtension(CreateExtension):
-    def __init__(self):
-        self.name = "hstore"
-
-
-class TrigramExtension(CreateExtension):
-    def __init__(self):
-        self.name = "pg_trgm"
-
-
-class UnaccentExtension(CreateExtension):
-    def __init__(self):
-        self.name = "unaccent"
+# class UnaccentExtension(CreateExtension):
+#     def __init__(self):
+#         self.name = "unaccent"
 
 
 class NotInTransactionMixin:

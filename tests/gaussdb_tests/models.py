@@ -3,9 +3,9 @@ from django.db import models
 from .fields import (
     ArrayField,
     BigIntegerRangeField,
-    CICharField,
-    CIEmailField,
-    CITextField,
+    # CICharField,
+    # CIEmailField,
+    # CITextField,
     DateRangeField,
     DateTimeRangeField,
     DecimalRangeField,
@@ -120,11 +120,11 @@ class Character(models.Model):
 
 
 # RemovedInDjango51Warning.
-class CITestModel(GaussDBModel):
-    name = CICharField(primary_key=True, max_length=255)
-    email = CIEmailField()
-    description = CITextField()
-    array_field = ArrayField(CITextField(), null=True)
+# class CITestModel(GaussDBModel):
+#     name = CICharField(primary_key=True, max_length=255)
+#     email = CIEmailField()
+#     description = CITextField()
+#     array_field = ArrayField(CITextField(), null=True)
 
 
 class Line(GaussDBModel):
